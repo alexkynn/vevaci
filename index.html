@@ -430,12 +430,11 @@
             };
 
             const fredBaseUrl = 'https://api.stlouisfed.org/fred/series/observations';
-            // Using a new, more reliable proxy service
-            const proxyUrl = 'https://corsproxy.io/?';
+            const proxyUrl = 'https://api.codetabs.com/v1/proxy/?quest='; // New, more reliable proxy
 
             for (const [key, id] of Object.entries(series)) {
                 const fredApiUrl = `${fredBaseUrl}?series_id=${id}&api_key=${apiKey}&file_type=json&limit=2&sort_order=desc`;
-                const requestUrl = `${proxyUrl}${encodeURIComponent(fredApiUrl)}`;
+                const requestUrl = `${proxyUrl}${fredApiUrl}`;
                 
                 try {
                     const response = await fetch(requestUrl);
@@ -457,8 +456,8 @@
                         throw new Error(`No observations for ${id}`);
                     }
                 } catch (error) {
-                    console.error(`Failed to fetch ${id}:`, error.message);
-                    updateTableCell(key, null, true, "Failed to fetch");
+                    console.error(`Failed to fetch ${id}:`, error);
+                    updateTableCell(key, null, true, "Failed to fetch. See console for details.");
                 }
             }
         }

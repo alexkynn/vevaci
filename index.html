@@ -421,20 +421,21 @@
 
             const series = {
                 interestRate: 'FEDFUNDS',
-                inflationRate: 'CPIAUCSL_PC1',    // YoY % Change in Consumer Price Index
-                coreCpi: 'CPILFESL_PC1',        // YoY % Change in Core Consumer Price Index
+                inflationRate: 'CPIAUCSL_PC1',
+                coreCpi: 'CPILFESL_PC1',
                 unemploymentRate: 'UNRATE',
-                ppi: 'PPIACO_PC1',              // YoY % Change in Producer Price Index for All Commodities
-                gdp: 'A191RP1Q027SBEA',         // Real GDP, Quarterly, Percent Change from Preceding Period
-                retailSales: 'RSAFS_PC1'        // YoY % Change in Retail Sales
+                ppi: 'PPIACO_PC1',
+                gdp: 'A191RP1Q027SBEA',
+                retailSales: 'RSAFS_PC1'
             };
 
             const fredBaseUrl = 'https://api.stlouisfed.org/fred/series/observations';
-            const proxyUrl = 'https://cors.sh/'; // Switched to a more reliable proxy
+            // Using a new, more reliable proxy service
+            const proxyUrl = 'https://corsproxy.io/?';
 
             for (const [key, id] of Object.entries(series)) {
                 const fredApiUrl = `${fredBaseUrl}?series_id=${id}&api_key=${apiKey}&file_type=json&limit=2&sort_order=desc`;
-                const requestUrl = `${proxyUrl}${fredApiUrl}`; // New proxy URL structure
+                const requestUrl = `${proxyUrl}${encodeURIComponent(fredApiUrl)}`;
                 
                 try {
                     const response = await fetch(requestUrl);
@@ -453,11 +454,11 @@
                     if (data && data.observations && data.observations.length > 0) {
                         updateTableCell(key, data.observations);
                     } else {
-                        throw new Error(`No observations found for ${id}`);
+                        throw new Error(`No observations for ${id}`);
                     }
                 } catch (error) {
-                    console.error(`Error fetching ${id}:`, error.message);
-                    updateTableCell(key, null, true, error.message);
+                    console.error(`Failed to fetch ${id}:`, error.message);
+                    updateTableCell(key, null, true, "Failed to fetch");
                 }
             }
         }

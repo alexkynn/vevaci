@@ -420,17 +420,17 @@
             const apiKey = '6fa4cffb01961faff2ba8eb4513e50fc';
 
             const series = {
-                interestRate: 'FEDFUNDS',
-                inflationRate: 'CPIAUCSL_PC1',
-                coreCpi: 'CPILFESL_PC1',
-                unemploymentRate: 'UNRATE',
-                ppi: 'PPIACO_PC1',
-                gdp: 'A191RP1Q027SBEA',
-                retailSales: 'RSAFS_PC1'
+                interestRate: 'DFF',            // Corrected: Daily Effective Federal Funds Rate
+                inflationRate: 'CPIAUCSL_PC1',    // Correct: YoY % Change in Consumer Price Index
+                coreCpi: 'CPILFESL_PC1',        // Correct: YoY % Change in Core Consumer Price Index
+                unemploymentRate: 'UNRATE',     // Correct: Civilian Unemployment Rate, Seasonally Adjusted
+                ppi: 'PPIACO_PC1',              // Correct: YoY % Change in Producer Price Index for All Commodities
+                gdp: 'A191RP1Q027SBEA',         // Correct: Real GDP, Quarterly, Percent Change from Preceding Period
+                retailSales: 'RSAFS_PC1'        // Correct: YoY % Change in Retail Sales
             };
 
             const fredBaseUrl = 'https://api.stlouisfed.org/fred/series/observations';
-            const proxyUrl = 'https://api.codetabs.com/v1/proxy/?quest='; // New, more reliable proxy
+            const proxyUrl = 'https://api.codetabs.com/v1/proxy/?quest='; 
 
             for (const [key, id] of Object.entries(series)) {
                 const fredApiUrl = `${fredBaseUrl}?series_id=${id}&api_key=${apiKey}&file_type=json&limit=2&sort_order=desc`;

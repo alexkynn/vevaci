@@ -417,7 +417,6 @@
         });
 
         async function fetchFREDData() {
-            // Your FRED API Key is now included.
             const apiKey = '6fa4cffb01961faff2ba8eb4513e50fc';
 
             const series = {
@@ -430,76 +429,27 @@
                 retailSales: 'RSAFS_PC1'        // YoY % Change in Retail Sales
             };
 
-            const baseUrl = 'https://api.stlouisfed.org/fred/series/observations';
+            const fredBaseUrl = 'https://api.stlouisfed.org/fred/series/observations';
+            const proxyUrl = 'https://api.allorigins.win/raw?url=';
 
             for (const [key, id] of Object.entries(series)) {
-                const url = `${baseUrl}?series_id=${id}&api_key=${apiKey}&file_type=json&limit=2&sort_order=desc`;
+                const fredApiUrl = `${fredBaseUrl}?series_id=${id}&api_key=${apiKey}&file_type=json&limit=2&sort_order=desc`;
+                const requestUrl = `${proxyUrl}${encodeURIComponent(fredApiUrl)}`;
                 
                 try {
-                    const response = await fetch(url);
-                    const data = await response.json(); // Always try to get JSON body
-                    
-                    if (!response.ok) { // Check for non-2xx responses
-                        // Throw an error with the message from the API if available
-                        throw new Error(data.error_message || `API responded with status: ${response.status}`);
+                    const response = await fetch(requestUrl);
+                    if (!response.ok) {
+                        throw new Error(`Proxy responded with status: ${response.status}`);
+                    }
+                    const textData = await response.text();
+                    const data = JSON.parse(textData);
+
+                    if (data.error_message) {
+                        throw new Error(data.error_message);
                     }
                     
                     if (data && data.observations && data.observations.length > 0) {
                         updateTableCell(key, data.observations);
                     } else {
-                        // This case might happen if the API returns 200 OK but with no data
-                        throw new Error(`No observations found for ${id}`);
-                    }
-                } catch (error) {
-                    console.error(`Error fetching ${id}:`, error.message);
-                    updateTableCell(key, null, true, error.message); // Pass the specific error message
-                }
-            }
-        }
-
-        function updateTableCell(indicatorKey, observations, isError = false, errorMessage = 'Error') {
-            const elementId = `us-${indicatorKey.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
-            const cell = document.getElementById(elementId);
-
-            if (!cell) {
-                console.error(`HTML element with ID ${elementId} not found.`);
-                return;
-            }
-            
-            if(isError){
-                // Display the specific error message from the API
-                cell.innerHTML = `<span class="negative" style="font-size: 0.8em;">${errorMessage}</span>`;
-                return;
-            }
-
-            if (!observations || observations.length === 0) {
-                cell.innerHTML = `<span class="negative">No Data</span>`;
-                return;
-            }
-
-            const latestValue = parseFloat(observations[0].value);
-            const previousValue = observations.length > 1 ? parseFloat(observations[1].value) : latestValue;
-            
-            if (isNaN(latestValue)) {
-                 cell.innerHTML = `<span>N/A</span>`; // Handle cases where data is not a number (e.g., ".")
-                 return;
-            }
-
-            const change = latestValue - previousValue;
-            
-            const valueClass = latestValue >= 0 ? 'positive' : 'negative';
-            const changeClass = change >= 0 ? 'positive' : 'negative';
-            
-            const displayValue = latestValue.toFixed(2) + '%';
-            const changeSign = change > 0 ? '+' : '';
-            const changeDisplay = `(${changeSign}${change.toFixed(2)}%)`;
-
-            cell.innerHTML = `
-                <span class="${valueClass}">${displayValue}</span>
-                <span class="change-value ${changeClass}">${changeDisplay}</span>
-            `;
-        }
-    </script>
-</body>
-</html>
+                        throw new
 

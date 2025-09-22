@@ -417,6 +417,8 @@
         });
 
         async function fetchFREDData() {
+            console.log("Starting to fetch FRED data..."); // Debug log
+            
             // Your FRED API Key is now included.
             const apiKey = '6fa4cffb01961faff2ba8eb4513e50fc';
 
@@ -435,6 +437,7 @@
             for (const [key, id] of Object.entries(series)) {
                 // Fetch the last 2 observations to calculate the change
                 const url = `${baseUrl}?series_id=${id}&api_key=${apiKey}&file_type=json&limit=2&sort_order=desc`;
+                console.log(`Fetching URL for ${key}: ${url}`); // Debug log
                 
                 try {
                     const response = await fetch(url);
